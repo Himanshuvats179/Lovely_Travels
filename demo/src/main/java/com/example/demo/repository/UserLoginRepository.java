@@ -9,4 +9,5 @@ public interface UserLoginRepository extends JpaRepository<UserLogin, Long> {
     Optional<UserLogin> findByJwtToken(String token);
     Optional<UserLogin> findByUserId(Long userId);
 
+    Optional<Object> findByRefreshToken(String token);
 }

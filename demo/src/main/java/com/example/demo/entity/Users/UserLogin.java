@@ -15,10 +15,12 @@ public class UserLogin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 500, nullable = false)
+    @Column(length = 500, nullable = true)
     private String jwtToken;
 
-    private LocalDateTime tokenExpiry;
+    private LocalDateTime refreshTokenExpiry;
+
+    private  String refreshToken;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", unique = true)

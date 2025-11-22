@@ -45,6 +45,7 @@ public class User {
 
     private LocalDate dob;
 
+    private Boolean flag =  false;
 
     @Basic(fetch = FetchType.LAZY)
     @Column(columnDefinition = "BYTEA")

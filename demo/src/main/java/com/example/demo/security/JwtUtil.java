@@ -1,7 +1,8 @@
 package com.example.demo.security;
 
 import com.example.demo.enums.AuthProvider;
-import com.example.demo.enums.Users.Gender;
+import com.example.demo.enums.Gender;
+import com.example.demo.repository.UserLoginRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
+
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
@@ -23,6 +25,11 @@ public class JwtUtil {
 
     @Value("${jwt.refreshExpiration}")
     private long REFRESH_TOKEN_VALIDITY;  // ADD THIS IN application.properties
+
+    UserLoginRepository userLoginRepository;
+    JwtUtil (UserLoginRepository userLoginRepository) {
+        this.userLoginRepository = userLoginRepository;
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
@@ -42,10 +49,14 @@ public class JwtUtil {
         Map<String, Object> header = new HashMap<>();
         header.put("typ", "JWT");
         header.put("authProvider", authProvider.name());
-        header.put("sub", emailOrPhone);
+
+        header.put("alg", "HS256");
+
+
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", fullName);
+        claims.put("sub", emailOrPhone);
         claims.put("country", country);
         claims.put("city", city);
         claims.put("gender", gender != null ? gender.name() : null);
@@ -102,7 +113,7 @@ public class JwtUtil {
         String email = claims.get("sub", String.class);
 
         return Jwts.builder()
-                .setHeaderParam("typ", "JWT")
+                .setHeaderParam("type", "JWT")
                 .setHeaderParam("authProvider", "REFRESH")
                 .claim("sub", email)
                 .claim("role", role)
@@ -113,7 +124,17 @@ public class JwtUtil {
     }
 
     public long getTokenValidity() {
-        return TOKEN_VALIDITY;
+        return  REFRESH_TOKEN_VALIDITY;
     }
+
+
+    public boolean isAccessTokenValidFromDB(String token) {
+        return isTokenValid(token) && userLoginRepository.findByJwtToken(token).isPresent();
+    }
+
+    public boolean isRefreshTokenValidFromDB(String token) {
+        return isRefreshTokenValid(token) && userLoginRepository.findByRefreshToken(token).isPresent();
+    }
+
 
 }
