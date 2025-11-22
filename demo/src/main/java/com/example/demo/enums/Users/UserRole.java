@@ -1,5 +1,5 @@
 package com.example.demo.enums;
 
 public enum UserRole {
-    CUSTOMER,ADMIN,USER
+    USER, DRIVER, HOTEL_ADMIN, SYS_ADMIN
 }
