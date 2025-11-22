@@ -1,12 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Hotel;
 
 import jakarta.persistence.*;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.UUID;
-import org.hibernate.annotations.Type; // For JSONB and GEOGRAPHY types
 
 // Inventory.java (Critical for high concurrency)
 @Entity

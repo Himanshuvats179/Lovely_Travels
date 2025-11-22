@@ -1,8 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Hotel;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Type; // Required for JSONB, GEOGRAPHY types
 
 import java.util.UUID;
 
@@ -13,7 +12,7 @@ import java.util.UUID;
 @Builder
 @Entity
 @Table(name = "hotels")
-public class Hotel {
+public class Hotels {
 
     @Id
     @GeneratedValue(generator = "UUID")

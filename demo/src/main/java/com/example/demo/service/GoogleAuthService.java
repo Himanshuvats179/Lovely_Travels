@@ -1,8 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.User;
-import com.example.demo.entity.UserLogin;
+import com.example.demo.entity.Users.User;
+import com.example.demo.entity.Users.UserLogin;
 import com.example.demo.enums.*;
+import com.example.demo.enums.Users.UserRole;
 import com.example.demo.repository.UserLoginRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtUtil;

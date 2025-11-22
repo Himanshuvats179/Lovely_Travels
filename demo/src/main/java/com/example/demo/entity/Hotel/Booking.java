@@ -1,6 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Hotel;
 
-import com.example.demo.enums.BookingStatus;
+import com.example.demo.enums.Payment.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

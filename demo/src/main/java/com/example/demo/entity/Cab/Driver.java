@@ -1,8 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Cab;
 
-import com.example.demo.enums.DriverStatus;
+import com.example.demo.enums.Cab.DriverStatus;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
+
 import java.time.Instant;
 import java.util.UUID;
 

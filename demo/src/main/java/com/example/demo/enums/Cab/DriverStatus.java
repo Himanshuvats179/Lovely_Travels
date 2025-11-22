@@ -1,4 +1,4 @@
-package com.example.demo.enums;
+package com.example.demo.enums.Cab;
 
 // DriverStatus.java
 public enum DriverStatus {

@@ -1,6 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Cab;
 
-import com.example.demo.enums.RideStatus;
+import com.example.demo.enums.Cab.RideStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

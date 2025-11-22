@@ -1,6 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Payment;
 
-import com.example.demo.enums.ReferenceType;
+import com.example.demo.enums.Hotel.ReferenceType;
 import jakarta.persistence.*;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 

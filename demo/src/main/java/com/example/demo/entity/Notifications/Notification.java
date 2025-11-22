@@ -1,8 +1,7 @@
-package com.example.demo.entity;
+package com.example.demo.entity.Notifications;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.Map;
 
 // NotificationTemplate.java
 @Document(collection = "notification_templates")

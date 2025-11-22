@@ -1,4 +1,4 @@
-package com.example.demo.enums;
+package com.example.demo.enums.Payment;
 
 // BookingStatus.java
 public enum BookingStatus {
