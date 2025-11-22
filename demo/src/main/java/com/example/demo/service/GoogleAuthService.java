@@ -1,11 +1,14 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.UserAdditionalInfoDTO;
 import com.example.demo.entity.User;
 import com.example.demo.entity.UserLogin;
 import com.example.demo.enums.*;
 import com.example.demo.repository.UserLoginRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtUtil;
+import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -120,7 +124,7 @@ public class GoogleAuthService {
             newUser.setPhoneNumber(null);
             newUser.setPassword(null);
 
-            if (pictureUrl != null) {
+            if(pictureUrl != null){
                 newUser.setProfileImage(fetchProfileImage(pictureUrl));
             }
 
@@ -138,21 +142,29 @@ public class GoogleAuthService {
                 user.getRole().name()
         );
 
+        String refreshToken =jwtUtil.generateRefreshToken(email);
+
         UserLogin userLogin = userLoginRepository.findByUserId(user.getId())
                 .orElse(new UserLogin());
         userLogin.setUser(user);
         userLogin.setJwtToken(jwtToken);
-        userLogin.setTokenExpiry(LocalDateTime.now().plusSeconds(jwtUtil.getTokenValidity() / 1000));
+        userLogin.setRefreshToken(refreshToken);
+        userLogin.setRefreshTokenExpiry(
+                LocalDateTime.now().plusNanos(jwtUtil.getTokenValidity() * 1_000_000)
+        );
+
         userLoginRepository.save(userLogin);
 
         log.info("User login saved for user: {}", user.getEmail());
 
         Map<String, Object> result = new HashMap<>();
         result.put("jwtToken", jwtToken);
+        result.put("refreshToken", refreshToken);
         result.put("email", user.getEmail());
         result.put("fullName", user.getFullName());
         result.put("role", user.getRole().name());
         result.put("pictureUrl", pictureUrl);
+        result.put("flag",user.getFlag());
 
         log.info("Returning result map: {}", result);
         return result;
@@ -167,4 +179,69 @@ public class GoogleAuthService {
             return null;
         }
     }
+
+    @Transactional
+    public boolean logoutUser(String accessToken) {
+        return userLoginRepository.findByJwtToken(accessToken)
+                .map(userLogin -> {
+                    userLoginRepository.delete(userLogin); // Delete the row
+                    return true;
+                })
+                .orElse(false);
+    }
+
+
+
+    public boolean updateExtraInfo(String email, UserAdditionalInfoDTO dto) {
+        try {
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            if (optionalUser.isEmpty()) {
+                return false; // User not found
+            }
+
+            User user = optionalUser.get(); // Get actual User object
+
+            // Update fields from DTO
+            if (dto.getFullName() != null) user.setFullName(dto.getFullName());
+            if (dto.getCountry() != null) user.setCountry(dto.getCountry());
+            if (dto.getCity() != null) user.setCity(dto.getCity());
+            if (dto.getPhoneNumber() != null) user.setPhoneNumber(dto.getPhoneNumber());
+            if (dto.getGender() != null) user.setGender(dto.getGender());
+            if (dto.getDob() != null) user.setDob(dto.getDob());
+
+            userRepository.save(user); // Save the User entity
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    public String validateTokenAndGetEmail(String authHeader) {
+        try {
+
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return null;
+            }
+            String token = authHeader.substring(7);
+
+            if (!jwtUtil.isTokenValid(token)) {
+                return null;
+            }
+            Optional<UserLogin> userLoginOpt = userLoginRepository.findByJwtToken(token);
+            if (userLoginOpt.isEmpty()) {
+                return null;
+            }
+
+            Claims email = jwtUtil.extractAllClaims(token);
+            return email.get("sub",String.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
