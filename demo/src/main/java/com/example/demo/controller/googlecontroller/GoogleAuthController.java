@@ -1,7 +1,7 @@
-package com.example.demo.controller;
+package com.example.demo.controller.googlecontroller;
 
 import com.example.demo.dto.UserAdditionalInfoDTO;
-import com.example.demo.service.GoogleAuthService;
+import com.example.demo.service.googleservice.GoogleAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;

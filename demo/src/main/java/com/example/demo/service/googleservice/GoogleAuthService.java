@@ -1,9 +1,10 @@
-package com.example.demo.service;
+package com.example.demo.service.googleservice;
 
 import com.example.demo.dto.UserAdditionalInfoDTO;
-import com.example.demo.entity.User;
-import com.example.demo.entity.UserLogin;
+import com.example.demo.entity.Users.*;
+//import com.example.demo.entity.UserLogin;
 import com.example.demo.enums.*;
+import com.example.demo.enums.Users.UserRole;
 import com.example.demo.repository.UserLoginRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.JwtUtil;
@@ -208,6 +209,7 @@ public class GoogleAuthService {
             if (dto.getPhoneNumber() != null) user.setPhoneNumber(dto.getPhoneNumber());
             if (dto.getGender() != null) user.setGender(dto.getGender());
             if (dto.getDob() != null) user.setDob(dto.getDob());
+            user.setFlag(Boolean.TRUE);
 
             userRepository.save(user); // Save the User entity
             return true;

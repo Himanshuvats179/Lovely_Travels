@@ -1,6 +1,6 @@
 package com.example.demo.dto;
 
-import com.example.demo.enums.Gender;
+import com.example.demo.enums.Users.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

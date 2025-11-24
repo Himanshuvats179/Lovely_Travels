@@ -39,6 +39,7 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
                             "/oauth2/**",
+                            "/auth/otp/**",
                             "/oauth2callback",
                             "/test"
                     ).permitAll();

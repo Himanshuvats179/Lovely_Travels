@@ -1,7 +1,7 @@
 package com.example.demo.security;
 
 import com.example.demo.enums.AuthProvider;
-import com.example.demo.enums.Gender;
+import com.example.demo.enums.Users.Gender;
 import com.example.demo.repository.UserLoginRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
