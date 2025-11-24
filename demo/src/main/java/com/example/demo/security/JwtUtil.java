@@ -59,7 +59,7 @@ public class JwtUtil {
         claims.put("sub", emailOrPhone);
         claims.put("country", country);
         claims.put("city", city);
-        claims.put("gender", gender != null ? gender.name() : null);
+        claims.put("gender", gender);
         claims.put("iat", new Date().getTime());
         claims.put("exp", new Date().getTime() + TOKEN_VALIDITY);
         claims.put("role", role);
@@ -135,6 +135,4 @@ public class JwtUtil {
     public boolean isRefreshTokenValidFromDB(String token) {
         return isRefreshTokenValid(token) && userLoginRepository.findByRefreshToken(token).isPresent();
     }
-
-
 }

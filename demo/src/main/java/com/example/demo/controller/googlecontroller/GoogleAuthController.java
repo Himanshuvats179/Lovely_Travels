@@ -97,9 +97,6 @@ public class GoogleAuthController {
         response.put("status", 401);
         return ResponseEntity.status(401).body(response);
     }
-
-
-
     @PostMapping("/user/extra-info")
     public ResponseEntity<Map<String, Object>> extraInfo(
             @RequestHeader("Authorization") String authHeader,
@@ -128,7 +125,4 @@ public class GoogleAuthController {
             return ResponseEntity.status(500).body(response);
         }
     }
-
-
-
 }
