@@ -57,8 +57,8 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", fullName);
         claims.put("sub", emailOrPhone);
-        claims.put("country", country);
-        claims.put("city", city);
+        claims.put("country", country != null ? country : "") ;
+        claims.put("city", city != null ?city:"");
         claims.put("gender", gender != null ? gender.name() : null);
         claims.put("iat", new Date().getTime());
         claims.put("exp", new Date().getTime() + TOKEN_VALIDITY);
