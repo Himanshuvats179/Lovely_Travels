@@ -1,12 +1,12 @@
 package com.example.demo.service.emailservice;
 
 import com.example.demo.dto.UserAdditionalInfoDTO;
-import com.example.demo.entity.Users.User;
-import com.example.demo.entity.Users.UserLogin;
-import com.example.demo.enums.AuthProvider;
-import com.example.demo.enums.Users.UserRole;
-import com.example.demo.repository.UserLoginRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.entity.users.User;
+import com.example.demo.entity.users.UserLogin;
+import com.example.demo.enums.users.UserRole;
+import com.example.demo.repository.hotel.HotelOwnerRepository;
+import com.example.demo.repository.user.UserLoginRepository;
+import com.example.demo.repository.user.UserRepository;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.otp.OtpService;
 import com.example.demo.service.rediservice.RedisService;
@@ -29,20 +29,21 @@ public class EmailService {
     private final JwtUtil   jwtUtil;
     private final UserRepository userRepository;
     private final UserLoginRepository userLoginRepository;
+    private final HotelOwnerRepository hotelRepository;
 
     private static final long OTP_COOLDOWN_MINUTES = 1; // 1 minute cooldown
     private static final String OTP_COOLDOWN_PREFIX = "EMAIL_COOLDOWN";
 
     public EmailService(JavaMailSender mailSender, OtpService otpService,
                         RedisService redisService,JwtUtil jwtUtil,UserRepository userRepository,
-                        UserLoginRepository userLoginRepository) {
+                        UserLoginRepository userLoginRepository,HotelOwnerRepository hotelRepository) {
         this.mailSender = mailSender;
         this.otpService = otpService;
         this.redisService = redisService;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         this.userLoginRepository = userLoginRepository;
-
+        this.hotelRepository = hotelRepository;
 
     }
 
@@ -112,14 +113,11 @@ public class EmailService {
             newUser.setGender(null);
             newUser.setDob(null);
             newUser.setPhoneNumber(null);
-            newUser.setPassword(null);
-
-//            if(pictureUrl != null){
-//                newUser.setProfileImage(fetchProfileImage(pictureUrl));
-//            }
 
             return userRepository.save(newUser);
         });
+
+        User savedUser = userRepository.save(user);
 
         //log.info("Generating JWT token for user: {}", user.getEmail());
         String jwtToken = jwtUtil.generateToken(
@@ -129,10 +127,12 @@ public class EmailService {
                 user.getCountry(),
                 user.getCity(),
                 user.getGender(),
-                user.getRole().name()
-        );
+                user.getRole(),
+                user.getId()
 
-        String refreshToken =jwtUtil.generateRefreshToken(email);
+        );
+        redisService.save(jwtToken, String.valueOf(user.getId()), jwtUtil.getTokenValidity());
+        String refreshToken =jwtUtil.generateRefreshToken(email,user.getId(),user.getRole());
 
         UserLogin userLogin = userLoginRepository.findByUserId(user.getId())
                 .orElse(new UserLogin());
@@ -185,6 +185,16 @@ public class EmailService {
             if (dto.getPhoneNumber() != null) user.setPhoneNumber(dto.getPhoneNumber());
             if (dto.getGender() != null) user.setGender(dto.getGender());
             if (dto.getDob() != null) user.setDob(dto.getDob());
+            if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(user.getPhoneNumber())) {
+
+                // Check if another user has same phone number
+                boolean exists = userRepository.existsByPhoneNumber(dto.getPhoneNumber());
+                if (exists) {
+                    throw new IllegalArgumentException("Phone number already exists");
+                }
+
+                user.setPhoneNumber(dto.getPhoneNumber());
+            }
             user.setFlag(Boolean.TRUE);
 
             userRepository.save(user); // Save the User entity

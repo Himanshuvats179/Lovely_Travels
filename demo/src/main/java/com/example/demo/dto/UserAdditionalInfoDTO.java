@@ -1,10 +1,9 @@
 package com.example.demo.dto;
 
-import com.example.demo.enums.Users.Gender;
+import com.example.demo.enums.users.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.checkerframework.checker.units.qual.A;
 
 import java.time.LocalDate;
 
@@ -18,4 +17,7 @@ public class UserAdditionalInfoDTO {
     private String phoneNumber;
     private Gender gender;
     private LocalDate dob;
+
+
+
 }

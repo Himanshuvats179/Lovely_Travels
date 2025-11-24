@@ -1,13 +1,15 @@
 package com.example.demo.service.googleservice;
 
 import com.example.demo.dto.UserAdditionalInfoDTO;
-import com.example.demo.entity.Users.*;
+import com.example.demo.entity.users.*;
 //import com.example.demo.entity.UserLogin;
 import com.example.demo.enums.*;
-import com.example.demo.enums.Users.UserRole;
-import com.example.demo.repository.UserLoginRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.enums.users.UserRole;
+import com.example.demo.repository.hotel.HotelOwnerRepository;
+import com.example.demo.repository.user.UserLoginRepository;
+import com.example.demo.repository.user.UserRepository;
 import com.example.demo.security.JwtUtil;
+import com.example.demo.service.rediservice.RedisService;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -34,6 +37,8 @@ public class GoogleAuthService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final UserLoginRepository userLoginRepository;
+    private final RedisService redisService;
+    private final HotelOwnerRepository hotelOwnerRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
     private static final String GOOGLE_TOKEN_INFO_URL = "https://oauth2.googleapis.com/tokeninfo?id_token=";
@@ -123,7 +128,6 @@ public class GoogleAuthService {
             newUser.setGender(null);
             newUser.setDob(null);
             newUser.setPhoneNumber(null);
-            newUser.setPassword(null);
 
             if(pictureUrl != null){
                 newUser.setProfileImage(fetchProfileImage(pictureUrl));
@@ -140,10 +144,11 @@ public class GoogleAuthService {
                 user.getCountry(),
                 user.getCity(),
                 user.getGender(),
-                user.getRole().name()
+                user.getRole(),
+                user.getId()
         );
-
-        String refreshToken =jwtUtil.generateRefreshToken(email);
+        redisService.save(jwtToken, String.valueOf(user.getId()), jwtUtil.getTokenValidity());
+        String refreshToken =jwtUtil.generateRefreshToken(email,user.getId(),user.getRole());
 
         UserLogin userLogin = userLoginRepository.findByUserId(user.getId())
                 .orElse(new UserLogin());
@@ -153,6 +158,11 @@ public class GoogleAuthService {
         userLogin.setRefreshTokenExpiry(
                 LocalDateTime.now().plusNanos(jwtUtil.getTokenValidity() * 1_000_000)
         );
+
+        User savedUser = userRepository.save(user);
+
+// create hotel owner for this user
+
 
         userLoginRepository.save(userLogin);
 
@@ -172,14 +182,21 @@ public class GoogleAuthService {
     }
 
     private byte[] fetchProfileImage(String imageUrl) {
-        try (InputStream in = new URL(imageUrl).openStream()) {
+        try {
             log.info("Fetching profile image from URL: {}", imageUrl);
-            return in.readAllBytes();
+
+            URI uri = URI.create(imageUrl);        // modern recommended API
+            URL url = uri.toURL();                 // safe conversion
+            try (InputStream in = url.openStream()) {
+                return in.readAllBytes();
+            }
+
         } catch (Exception e) {
             log.error("Failed to fetch profile image from URL: {}", imageUrl, e);
             return null;
         }
     }
+
 
     @Transactional
     public boolean logoutUser(String accessToken) {

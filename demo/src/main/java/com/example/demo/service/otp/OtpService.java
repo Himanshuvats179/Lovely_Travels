@@ -1,9 +1,11 @@
 package com.example.demo.service.otp;
 
+import com.example.demo.entity.cab.Ride;
 import com.example.demo.service.rediservice.RedisService;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.UUID;
 
 @Service
 public class OtpService {
@@ -21,7 +23,7 @@ public class OtpService {
     public String generateOtp(String keyPrefix, String identifier) {
         String key = buildKey(keyPrefix, identifier);
         String otp = String.format("%06d", secureRandom.nextInt(999999));
-        redisService.save(key, otp, OTP_EXPIRATION_MINUTES);
+      redisService.save(key, otp, OTP_EXPIRATION_MINUTES);
         return otp;
     }
 
@@ -38,7 +40,21 @@ public class OtpService {
         return isValid;
     }
 
-    // Build a Redis key
+    public String generateNumericOtp(int length) {
+        SecureRandom random = new SecureRandom();
+        // Calculate the range: e.g., for length 6, start is 100000, end is 999999
+        int min = (int) Math.pow(10, length - 1);
+        int max = (int) Math.pow(10, length) - 1;
+
+        int otp = random.nextInt(max - min + 1) + min;
+
+        // Pad with leading zeros if necessary (though usually unnecessary for base-10 generation)
+        return String.format("%0" + length + "d", otp);
+    }
+
+
+
+
     private String buildKey(String prefix, String identifier){
         return prefix + "_" + identifier;
     }

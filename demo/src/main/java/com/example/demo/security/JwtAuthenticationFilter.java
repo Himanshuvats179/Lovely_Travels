@@ -48,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (accessToken != null) {
             log.info("Access token found: {}", accessToken);
-            if (jwtUtil.isAccessTokenValidFromDB(accessToken)) {
+            if (jwtUtil.isAccessTokenValidFromRedis(accessToken)) {
                 log.info("Access token is valid from DB");
                 Claims claims = jwtUtil.extractAllClaims(accessToken);
                 String email = claims.get("sub", String.class);

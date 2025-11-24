@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Slf4j
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
@@ -38,11 +42,17 @@ public class SecurityConfig {
                             "/public/**",
                             "/swagger-ui/**",
                             "/v3/api-docs/**",
-                            "/oauth2/**",
+                            "/oauth2/**","/auth/phone/**",
                             "/auth/otp/**",
                             "/oauth2callback",
                             "/test"
-                    ).permitAll();
+
+                    ).permitAll()
+
+                          .requestMatchers("/admin/**").hasAuthority("SYS_ADMIN")
+
+                            .requestMatchers("/hotel-admin/**").hasAuthority("HOTEL_ADMIN");
+
                     log.info("Permitting all requests to public endpoints and /logout");
                     auth.anyRequest().authenticated();
 

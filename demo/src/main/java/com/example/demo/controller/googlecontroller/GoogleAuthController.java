@@ -1,4 +1,6 @@
 package com.example.demo.controller.googlecontroller;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import com.example.demo.dto.UserAdditionalInfoDTO;
 import com.example.demo.service.googleservice.GoogleAuthService;
@@ -47,86 +49,52 @@ public class GoogleAuthController {
         response.sendRedirect(googleAuthUrl);
     }
 
+//
+//    @GetMapping(value = "/auth/google/callback")
+//    @Operation(summary = "Google OAuth2 callback", description = "Google redirects here with code, backend returns JWT")
+//    public Map<String, Object> googleCallback(@RequestParam("code") String code) {
+//        logger.info("Received Google OAuth2 callback with code: {}", code);
+//
+//
+//        Map<String, Object> jwtData = googleAuthService.authenticateWithGoogleCode(code);
+//
+//        logger.info("Google authentication successful for email: {}", jwtData.get("email"));
+//        logger.debug("JWT Data: {}", jwtData);
+//
+//
+//        return jwtData;
+//
+//
+//    }
 
-    @GetMapping(value = "/auth/google/callback")
-    @Operation(summary = "Google OAuth2 callback", description = "Google redirects here with code, backend returns JWT")
-    public Map<String, Object> googleCallback(@RequestParam("code") String code) {
+    @GetMapping("/auth/google/callback")
+    public void googleCallback(
+            @RequestParam("code") String code,
+            HttpServletResponse response
+    ) throws IOException {
+
         logger.info("Received Google OAuth2 callback with code: {}", code);
 
-
+        // Authenticate user and generate tokens
         Map<String, Object> jwtData = googleAuthService.authenticateWithGoogleCode(code);
 
-        logger.info("Google authentication successful for email: {}", jwtData.get("email"));
-        logger.debug("JWT Data: {}", jwtData);
+        String accessToken = (String) jwtData.get("jwtToken");
+        String refreshToken = (String) jwtData.get("refreshToken");
+        String fullName = (String) jwtData.get("fullName");
+        String email = (String) jwtData.get("email");
+        String pictureUrl = (String) jwtData.get("pictureUrl");
+
+        String redirectUrl = "http://localhost:5173/oauth-success"
+                + "?accessToken=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8)
+                + "&refreshToken=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8)
+                + "&fullName=" + URLEncoder.encode(fullName, StandardCharsets.UTF_8)
+                + "&email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                + "&pictureUrl=" + URLEncoder.encode(pictureUrl, StandardCharsets.UTF_8);
+
+        response.sendRedirect(redirectUrl);
 
 
-        return jwtData;
-    }
-    @PostMapping("/user/logout")
-    public ResponseEntity<Map<String, Object>> logout(
-            @RequestHeader(value = "Authorization", required = false) String authHeader) {
-
-        Map<String, Object> response = new HashMap<>();
-        logger.info("Logout API called");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            logger.warn("Authorization header missing or invalid: {}", authHeader);
-            response.put("message", "Authorization header missing or invalid");
-            response.put("success", false);
-            response.put("status", 401);
-            return ResponseEntity.status(401).body(response);
-        }
-
-        String token = authHeader.substring(7);
-        logger.info("Extracted Bearer token: {}", token);
-
-        boolean result = googleAuthService.logoutUser(token);
-        logger.info("Logout service result: {}", result);
-
-        if (result) {
-            logger.info("User logged out successfully for token: {}", token);
-            response.put("message", "Logged out successfully");
-            response.put("success", true);
-            response.put("status", 200);
-            return ResponseEntity.ok(response);
-        }
-
-        logger.warn("Invalid token or already logged out: {}", token);
-        response.put("message", "Invalid token or already logged out");
-        response.put("success", false);
-        response.put("status", 401);
-        return ResponseEntity.status(401).body(response);
-    }
-
-
-
-    @PostMapping("/user/extra-info")
-    public ResponseEntity<Map<String, Object>> extraInfo(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody UserAdditionalInfoDTO requestDTO) {
-
-        Map<String, Object> response = new HashMap<>();
-
-        // Validate JWT and get user email
-        String email = googleAuthService.validateTokenAndGetEmail(authHeader);
-        if (email == null) {
-            response.put("success", false);
-            response.put("message", "Invalid or missing token");
-            return ResponseEntity.status(401).body(response);
-        }
-
-        // Call service method to save/update extra info
-        boolean updated = googleAuthService.updateExtraInfo(email, requestDTO);
-
-        if (updated) {
-            response.put("success", true);
-            response.put("message", "Extra info saved successfully");
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("success", false);
-            response.put("message", "Failed to save extra info");
-            return ResponseEntity.status(500).body(response);
-        }
+        //response.sendRedirect(redirectUrl);
     }
 
 

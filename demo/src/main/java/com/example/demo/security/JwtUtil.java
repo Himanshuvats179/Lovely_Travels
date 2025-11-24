@@ -1,8 +1,10 @@
 package com.example.demo.security;
 
 import com.example.demo.enums.AuthProvider;
-import com.example.demo.enums.Users.Gender;
-import com.example.demo.repository.UserLoginRepository;
+import com.example.demo.enums.users.Gender;
+import com.example.demo.enums.users.UserRole;
+import com.example.demo.repository.user.UserLoginRepository;
+import com.example.demo.service.rediservice.RedisService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -26,9 +29,11 @@ public class JwtUtil {
     @Value("${jwt.refreshExpiration}")
     private long REFRESH_TOKEN_VALIDITY;  // ADD THIS IN application.properties
 
+    RedisService redisService;
     UserLoginRepository userLoginRepository;
-    JwtUtil (UserLoginRepository userLoginRepository) {
+    JwtUtil (UserLoginRepository userLoginRepository,RedisService redisService) {
         this.userLoginRepository = userLoginRepository;
+        this.redisService = redisService;
     }
 
     private Key getSigningKey() {
@@ -42,8 +47,8 @@ public class JwtUtil {
             String fullName,
             String country,
             String city,
-            Gender gender,
-            String role
+            Gender gender, UserRole role,
+            UUID id
     ) {
 
         Map<String, Object> header = new HashMap<>();
@@ -57,12 +62,13 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("name", fullName);
         claims.put("sub", emailOrPhone);
-        claims.put("country", country != null ? country : "") ;
-        claims.put("city", city != null ?city:"");
+        claims.put("country", country);
+        claims.put("city", city);
         claims.put("gender", gender != null ? gender.name() : null);
         claims.put("iat", new Date().getTime());
         claims.put("exp", new Date().getTime() + TOKEN_VALIDITY);
         claims.put("role", role);
+        claims.put("userID", id);
 
         return Jwts.builder()
                 .setHeader(header)
@@ -71,13 +77,17 @@ public class JwtUtil {
                 .compact();
     }
 
+
+
     // ------------------- Refresh Token -------------------
-    public String generateRefreshToken(String emailOrPhone) {
+    public String generateRefreshToken(String emailOrPhone ,UUID id ,   UserRole role ) {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", emailOrPhone);
         claims.put("iat", new Date().getTime());
         claims.put("exp", new Date().getTime() + REFRESH_TOKEN_VALIDITY);
+        claims.put("userID", id);
+        claims.put("role", role);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -106,7 +116,7 @@ public class JwtUtil {
         return isTokenValid(refreshToken);
     }
 
-    // Create new access token from refresh token
+
     public String createNewAccessToken(String refreshToken, String role) {
         Claims claims = extractAllClaims(refreshToken);
 
@@ -127,13 +137,17 @@ public class JwtUtil {
         return  REFRESH_TOKEN_VALIDITY;
     }
 
-
-    public boolean isAccessTokenValidFromDB(String token) {
-        return isTokenValid(token) && userLoginRepository.findByJwtToken(token).isPresent();
-    }
-
     public boolean isRefreshTokenValidFromDB(String token) {
         return isRefreshTokenValid(token) && userLoginRepository.findByRefreshToken(token).isPresent();
+    }
+    public boolean isAccessTokenValidFromRedis(String token) {
+        return isTokenValid(token) && redisService.get(token) != null;
+    }
+
+    public  UUID extractUserId(String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Claims claims = extractAllClaims(token);
+        return UUID.fromString(claims.get("userId").toString());
     }
 
 
