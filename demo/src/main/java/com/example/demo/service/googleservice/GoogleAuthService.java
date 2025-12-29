@@ -129,9 +129,9 @@ public class GoogleAuthService {
             newUser.setDob(null);
             newUser.setPhoneNumber(null);
 
-            if(pictureUrl != null){
-                newUser.setProfileImage(fetchProfileImage(pictureUrl));
-            }
+//            if(pictureUrl != null){
+//                newUser.setProfileImage(fetchProfileImage(pictureUrl));
+//            }
 
             return userRepository.save(newUser);
         });
@@ -161,7 +161,7 @@ public class GoogleAuthService {
 
         User savedUser = userRepository.save(user);
 
-// create hotel owner for this user
+
 
 
         userLoginRepository.save(userLogin);
@@ -176,27 +176,28 @@ public class GoogleAuthService {
         result.put("role", user.getRole().name());
         result.put("pictureUrl", pictureUrl);
         result.put("flag",user.getFlag());
+        result.put("userId", savedUser.getId());
 
         log.info("Returning result map: {}", result);
         return result;
     }
 
-    private byte[] fetchProfileImage(String imageUrl) {
-        try {
-            log.info("Fetching profile image from URL: {}", imageUrl);
-
-            URI uri = URI.create(imageUrl);        // modern recommended API
-            URL url = uri.toURL();                 // safe conversion
-            try (InputStream in = url.openStream()) {
-                return in.readAllBytes();
-            }
-
-        } catch (Exception e) {
-            log.error("Failed to fetch profile image from URL: {}", imageUrl, e);
-            return null;
-        }
-    }
-
+//    private byte[] fetchProfileImage(String imageUrl) {
+//        try {
+//            log.info("Fetching profile image from URL: {}", imageUrl);
+//
+//            URI uri = URI.create(imageUrl);        // modern recommended API
+//            URL url = uri.toURL();                 // safe conversion
+//            try (InputStream in = url.openStream()) {
+//                return in.readAllBytes();
+//            }
+//
+//        } catch (Exception e) {
+//            log.error("Failed to fetch profile image from URL: {}", imageUrl, e);
+//            return null;
+//        }
+//    }
+//
 
     @Transactional
     public boolean logoutUser(String accessToken) {

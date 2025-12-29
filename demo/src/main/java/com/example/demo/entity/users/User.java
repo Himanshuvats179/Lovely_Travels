@@ -48,9 +48,9 @@ public class User {
 
     private Boolean flag =  false;
 
-    @Basic(fetch = FetchType.LAZY)
-    @Column(columnDefinition = "BYTEA")
-    private byte[] profileImage=new byte[0];
+
+
+    private String  profileImage="";
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

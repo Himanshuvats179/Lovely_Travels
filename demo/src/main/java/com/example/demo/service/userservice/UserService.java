@@ -23,6 +23,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.transaction.annotation.Transactional;
+
+
+
 
 
 @Slf4j
@@ -84,6 +88,7 @@ public class UserService {
 
 
     // 🔹 Logout (Invalidate Access Token)
+    @Transactional
     public Map<String, Object> logout(String jwtToken) {
 
         log.info("Logout request for token: {}", truncateToken(jwtToken));
@@ -135,24 +140,32 @@ public class UserService {
         UUID userId = UUID.fromString(userIdObj.toString());
         log.info("Updating info for user {}", userId);
         User user = userRepository.findById(userId).orElseThrow();
-
         if (dto.getFullName() != null) user.setFullName(dto.getFullName());
         if (dto.getCountry() != null) user.setCountry(dto.getCountry());
         if (dto.getCity() != null) user.setCity(dto.getCity());
         if (dto.getDob() != null) user.setDob(dto.getDob());
         if (dto.getGender() != null) user.setGender(dto.getGender());
-        if(dto.getPhoneNumber() != null) user.setPhoneNumber(dto.getPhoneNumber());
-        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail()))
-        {
 
-            // check if this email already belongs to another user
+
+        if (dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals(user.getPhoneNumber())) {
+
+            if (userRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
+                response.put("status", false);
+                response.put("message", "Phone number already exists. Please use a different phone number.");
+                return response;
+            }
+
+            user.setPhoneNumber(dto.getPhoneNumber());
+        }
+
+        if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
+
             if (userRepository.existsByEmail(dto.getEmail())) {
                 response.put("status", false);
                 response.put("message", "Email already exists. Please use a different email.");
                 return response;
             }
 
-            // Email doesn't exist → safe to update
             user.setEmail(dto.getEmail());
         }
 
@@ -208,6 +221,36 @@ public class UserService {
         Page<User> users = userRepository.findAll(spec, pageable);
 
         return users.map(this::convertToDto);
+    }
+
+
+    public Map<String, Object> getById(String userId) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(userId); //  convert String → UUID
+        } catch (IllegalArgumentException e) {
+            response.put("status", false);
+            response.put("message", "Invalid User ID format");
+            return response;
+        }
+
+        Optional<User> optionalUser = userRepository.findById(uuid);
+
+        if (optionalUser.isEmpty()) {
+            response.put("status", false);
+            response.put("message", "User not found");
+            return response;
+        }
+
+        User user = optionalUser.get();
+
+        response.put("status", true);
+        response.put("data", convertToDto(user));
+
+        return response;
     }
 
 

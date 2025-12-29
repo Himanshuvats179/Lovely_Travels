@@ -79,6 +79,7 @@ public class EmailService {
 
 
     public boolean validateOtp(String email, String otp) {
+
         return otpService.validateOtp("EMAIL", email, otp);
     }
 
@@ -154,6 +155,7 @@ public class EmailService {
         result.put("fullName", user.getFullName());
         result.put("role", user.getRole().name());
         result.put("flag",user.getFlag());
+        result.put("userId",user.getId());
 
         //log.info("Returning result map: {}", result);
         return result;

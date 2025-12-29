@@ -8,6 +8,7 @@ import com.example.demo.service.userservice.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -69,7 +70,7 @@ public class UserController {
 
         Map<String, Object> response = new HashMap<>();
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer  ")) {
             response.put("success", false);
             response.put("message", "Authorization header missing or invalid");
             response.put("status", 401);
@@ -83,13 +84,6 @@ public class UserController {
         return ResponseEntity.ok(logoutResponse);
     }
 
-//    @PostMapping("/init")
-//    public ResponseEntity<Void> initHotelOwner(
-//            @RequestHeader("Authorization") String authHeader
-//    ) {
-//        userService.initializeHotelOwner(authHeader);
-//        return ResponseEntity.ok().build();  // No response body
-//    }
 
     @PreAuthorize("hasAuthority('SYS_ADMIN')")
     @DeleteMapping("/admin/delete/user/{id}")
@@ -100,5 +94,18 @@ public class UserController {
         response.put("message", "User deleted successfully");
         return ResponseEntity.status(204).body(response);
     }
+
+    @GetMapping("/admin/user/{id}")
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable String id) {
+
+        Map<String, Object> response = userService.getById(id);
+
+        if (!(Boolean) response.get("status")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }

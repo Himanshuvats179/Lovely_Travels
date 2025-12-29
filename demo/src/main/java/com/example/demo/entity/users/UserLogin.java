@@ -23,7 +23,7 @@ public class UserLogin {
     @Column(columnDefinition = "TEXT")
     private  String refreshToken;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 }

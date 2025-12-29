@@ -123,8 +123,13 @@ public class PhoneService {
         saveUserLogin(user, token, refreshToken);
 
         response.put("status", true);
-        response.put("jwt", token);
+        response.put("accessToken", token);
         response.put("refreshToken", refreshToken);
+        response.put("fullName", user.getFullName());
+        response.put("role", user.getRole().name());
+        response.put("flag",user.getFlag());
+        response.put("userId",user.getId());
+
 
         log.info("Login process completed successfully for user {}", user.getId());
 
