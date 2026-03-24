@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: mmt-backend
+    runtime: docker
+    dockerContext: backend/demo
+    dockerfilePath: backend/demo/Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: DB_HOST
+        value: "" # Fill this in your Render Dashboard Environment Settings
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: "mmt"
+      - key: DB_USERNAME
+        value: "postgres"
+      - key: DB_PASSWORD
+        value: "" # Fill this in your Render Dashboard Environment Settings
+      - key: MONGO_URI
+        value: "" # Use MongoDB Atlas URI
+      - key: REDIS_URL
+        value: "" # Use Upstash Redis URL
+      - key: OAUTH_REDIRECT_URI
+        value: "" # Set this to your Vercel URL, e.g. https://your-app.vercel.app/auth/google/callback
