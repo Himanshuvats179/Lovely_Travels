@@ -1,5 +1,7 @@
 # Lovely Travels 🚀
 
+### 🌐 Live Demo: [https://lovely-travels.vercel.app](https://lovely-travels.vercel.app)
+
 **Lovely Travels** is a scalable, full-stack travel platform (MakeMyTrip clone) featuring real-time cab booking, hotel management system, and multi-role dashboards.
 
 ## 🔗 Live Deployment
