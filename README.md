@@ -17,6 +17,7 @@
 
 ### 1.  Secure Authentication
 - **JWT & OAuth2**: Integrated Google OAuth and JWT-based session management.
+- **Login**: Login through Email , Phone Number , Google Account.
 - **Role-Based Access Control (RBAC)**: Specific interfaces for **Users**, **Drivers**, **Hotel Owners**, and **Admins**.
 
 ### 2.  Real-time Cab Booking
