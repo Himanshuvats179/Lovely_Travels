@@ -1,4 +1,4 @@
-# Lovely Travels 🚀
+# Lovely Travels 
 
 ### 🌐 Live Demo: [https://lovely-travels.vercel.app](https://lovely-travels.vercel.app)
 
@@ -13,22 +13,22 @@
 
 ---
 
-## ✨ Features & Functionality
+##  Features & Functionality
 
-### 1. 🔐 Secure Authentication
+### 1.  Secure Authentication
 - **JWT & OAuth2**: Integrated Google OAuth and JWT-based session management.
 - **Role-Based Access Control (RBAC)**: Specific interfaces for **Users**, **Drivers**, **Hotel Owners**, and **Admins**.
 
-### 2. 🚖 Real-time Cab Booking
+### 2.  Real-time Cab Booking
 - **Live Location Tracking**: Powered by **WebSockets** (StompJS/SockJS) for real-time driver-passenger interaction.
 - **Interactive Maps**: Uses **Leaflet** and **OSRM** for accurate road-distance and route calculations.
 - **3-Tier Failsafe**: Intelligent fallback system (OSRM -> Haversine -> Hardcoded) for distance calculations.
 
-### 3. 🏨 Hotel Management System
+### 3.  Hotel Management System
 - **For Users**: Browse, filter, and book hotels with a seamless checkout flow.
 - **For Owners**: Provision properties, manage room inventory, and upload property media.
 
-### 4. 🛠️ Modern Tech Stack
+### 4.  Modern Tech Stack
 - **Frontend**: React 19, Vite, React Router 7, Axios, Leaflet, Tailwind CSS (via components).
 - **Backend**: Java 21, Spring Boot 3.5, Spring Security, Spring Data JPA/MongoDB/Redis.
 - **Databases**: PostgreSQL (Relational), MongoDB (NoSQL), Redis (Caching/Sessions).
@@ -36,14 +36,14 @@
 
 ---
 
-## 🚀 Deployment & DevOps
+##  Deployment & DevOps
 
 The project is fully containerized and automated:
 - **Docker**: Each service contains its own `Dockerfile` for easy local and cloud deployment.
 - **Docker Compose**: Orchestrates the entire app (Frontend, Backend, DBs) with a single command.
 - **Blueprints**: Uses Render Blueprints for automated backend scaling and Vercel for fast frontend delivery.
 
-## 📂 Project Structure
+##  Project Structure
 
 - `/frontend` - React + Vite frontend source code.
 - `/backend` - Spring Boot Java backend source code.
@@ -53,7 +53,7 @@ The project is fully containerized and automated:
 
 ---
 
-## 🛠️ Local Development
+##  Local Development
 
 1. **Clone the repo**:
    ```bash
